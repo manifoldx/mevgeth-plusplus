@@ -2228,6 +2228,7 @@ type CallBundleArgs struct {
 	Txs                    []hexutil.Bytes       `json:"txs"`
 	BlockNumber            rpc.BlockNumber       `json:"blockNumber"`
 	StateBlockNumberOrHash rpc.BlockNumberOrHash `json:"stateBlockNumber"`
+	StateTransactionHash   *common.Hash          `json:"stateTransactionHash"`
 	Coinbase               *string               `json:"coinbase"`
 	Timestamp              *uint64               `json:"timestamp"`
 	Timeout                *int64                `json:"timeout"`
@@ -2329,6 +2330,32 @@ func (s *BundleAPI) CallBundle(ctx context.Context, args CallBundleArgs) (map[st
 	signer := types.MakeSigner(s.b.ChainConfig(), blockNumber)
 	var totalGasUsed uint64
 	gasFees := new(big.Int)
+
+	if args.StateTransactionHash != nil {
+		_, blockHash, _, transactionIndex, err := s.b.GetTransaction(ctx, *args.StateTransactionHash)
+		if err != nil {
+			return nil, fmt.Errorf("err: %w; transaction not found, trxhash %s", err, *args.StateTransactionHash)
+		}
+
+		block, err := s.b.BlockByHash(ctx, blockHash)
+		if err != nil {
+			return nil, fmt.Errorf("err: %w; transaction's block not found, blockhash %s", err, blockHash)
+		}
+
+		if header.ParentHash != block.ParentHash() {
+			return nil, fmt.Errorf("err: state transaction should be included in the next state block;")
+		}
+
+		for i := uint64(0); i <= transactionIndex; i++ {
+			transaction := block.Transactions()[i]
+
+			_, _, err := core.ApplyTransactionWithResult(s.b.ChainConfig(), s.chain, &coinbase, gp, state, header, transaction, &header.GasUsed, vmconfig)
+			if err != nil {
+				return nil, fmt.Errorf("err: %w; txhash %s", err, transaction.Hash())
+			}
+		}
+	}
+
 	for i, tx := range txs {
 		coinbaseBalanceBeforeTx := state.GetBalance(coinbase)
 		state.Prepare(tx.Hash(), i)
