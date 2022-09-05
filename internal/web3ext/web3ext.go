@@ -234,9 +234,10 @@ web3._extend({
 			params: 1
 		}),
 		new web3._extend.Method({
-			name: 'getRawReceipts',
-			call: 'debug_getRawReceipts',
-			params: 1
+			name: 'testSignCliqueBlock',
+			call: 'debug_testSignCliqueBlock',
+			params: 2,
+			inputFormatter: [web3._extend.formatters.inputAddressFormatter, null],
 		}),
 		new web3._extend.Method({
 			name: 'setHead',
@@ -470,21 +471,6 @@ web3._extend({
 			params: 2,
 			inputFormatter:[web3._extend.formatters.inputBlockNumberFormatter, web3._extend.formatters.inputBlockNumberFormatter],
 		}),
-		new web3._extend.Method({
-			name: 'dbGet',
-			call: 'debug_dbGet',
-			params: 1
-		}),
-		new web3._extend.Method({
-			name: 'dbAncient',
-			call: 'debug_dbAncient',
-			params: 2
-		}),
-		new web3._extend.Method({
-			name: 'dbAncients',
-			call: 'debug_dbAncients',
-			params: 0
-		}),
 	],
 	properties: []
 });
@@ -531,12 +517,6 @@ web3._extend({
 			inputFormatter: [web3._extend.formatters.inputTransactionFormatter]
 		}),
 		new web3._extend.Method({
- 			name: 'sendPrivateRawTransaction',
- 			call: 'eth_sendPrivateRawTransaction',
- 			params: 1,
- 			inputFormatter: [null]
- 		}),
-		new web3._extend.Method({
 			name: 'fillTransaction',
 			call: 'eth_fillTransaction',
 			params: 1,
@@ -564,30 +544,6 @@ web3._extend({
 			call: 'eth_getBlockByHash',
 			params: 2,
 			inputFormatter: [null, function (val) { return !!val; }]
-		}),
-		new web3._extend.Method({
-			name: 'getBlockReceipts',
-			call: 'eth_getBlockReceipts',
-			params: 1,
-			inputFormatter: [null]
-		}),
-		new web3._extend.Method({
-			name: 'getMinimalBlockLogs',
-			call: 'eth_getMinimalBlockLogs',
-			params: 1,
-			inputFormatter: [null]
-		}),
-		new web3._extend.Method({
-			name: 'getMinimalBlockByNumber',
-			call: 'eth_getMinimalBlockByNumber',
-			params: 1,
-			inputFormatter: [web3._extend.formatters.inputBlockNumberFormatter]
-		}),
-		new web3._extend.Method({
-			name: 'getBatchBlockDataByNumbers',
-			call: 'eth_getBatchBlockDataByNumbers',
-			params: 1,
-			inputFormatter: [function (val) { return val.map(web3._extend.formatters.inputBlockNumberFormatter); }]
 		}),
 		new web3._extend.Method({
 			name: 'getRawTransaction',
@@ -621,24 +577,9 @@ web3._extend({
 			inputFormatter: [null, web3._extend.formatters.inputBlockNumberFormatter, null]
 		}),
 		new web3._extend.Method({
-			name: 'getLogs',
-			call: 'eth_getLogs',
-			params: 1,
-		}),
-		new web3._extend.Method({
-			name: 'callBundle',
-			call: 'eth_callBundle',
-			params: 1,
-		}),
-		new web3._extend.Method({
-			name: 'estimateGasBundle',
-			call: 'eth_estimateGasBundle',
-			params: 1,
-		}),
-		new web3._extend.Method({
 			name: 'sendBundle',
 			call: 'eth_sendBundle',
-			params: 1,
+			params: 1
 		}),
 		new web3._extend.Method({
 			name: 'sendMegabundle',
